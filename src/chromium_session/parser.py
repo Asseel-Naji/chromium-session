@@ -72,7 +72,9 @@ class Window:
     tabs: list[Tab] = field(default_factory=list)
 
 
-def load_vivaldi_workspaces(profile_path: str | Path | None = None) -> dict[int, Workspace]:
+def load_vivaldi_workspaces(
+    profile_path: str | Path | None = None,
+) -> dict[int, Workspace]:
     """Load workspace definitions from Vivaldi Preferences file."""
     if profile_path is None:
         profile_path = Path.home() / ".config/vivaldi/Profile 2"
@@ -425,7 +427,9 @@ class SessionParser:
                             result_tab["workspace_id"] = ws_id
                             if ws_id in self.workspaces:
                                 ws = self.workspaces[ws_id]
-                                result_tab["workspace"] = f"{ws.emoji} {ws.name}".strip()
+                                result_tab["workspace"] = (
+                                    f"{ws.emoji} {ws.name}".strip()
+                                )
 
                 result_window["tabs"].append(result_tab)
 
