@@ -1,32 +1,43 @@
 # chromium-session
 
-Parse and analyze session files from Chromium-based browsers (Chrome, Vivaldi, Brave, Edge) with support for workspaces, profiles, and tab management.
+[![PyPI version](https://badge.fury.io/py/chromium-session.svg)](https://badge.fury.io/py/chromium-session)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+Parse and analyze session files from Chromium-based browsers (Chrome, Vivaldi, Brave, Edge) with support for workspaces, profiles, bookmarks, history, and tab management.
 
 ## Features
 
-- **Multi-browser support**: Chrome, Vivaldi, Brave, Edge, and other Chromium-based browsers
-- **Profile detection**: Automatically detects and lists all browser profiles
-- **Workspace support**: Parse Vivaldi workspaces and group tabs accordingly
-- **Session analysis**: View active/deleted tabs, windows, and session statistics
-- **Flexible output**: Rich terminal display or JSON export
-- **Tab organization**: View tabs by window or grouped by workspace
+- **🔍 Auto-detection**: Automatically finds and uses the most recently modified session
+- **🌐 Multi-browser support**: Chrome, Vivaldi, Brave, Edge, Opera, Arc, and more
+- **👤 Profile detection**: Automatically detects and lists all browser profiles
+- **📁 Workspace support**: Parse Vivaldi workspaces and group tabs accordingly
+- **📊 Session analysis**: View active/deleted tabs, windows, and session statistics
+- **💾 Multiple export formats**: Rich terminal display, JSON, or CSV export
+- **🔖 Bookmarks parser**: View bookmarks with folder structure
+- **📜 History parser**: Browse browsing history with search and filtering
+- **🗂️ Tab organization**: Reorganize tabs by domain or title and write back to session files
 
 ## Installation
 
-### From Source
+### From PyPI (Coming Soon)
 
 ```bash
-git clone https://github.com/yourusername/chromium-session.git
-cd chromium-session
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-uv pip install -e .
+pip install chromium-session
 ```
 
 ### Using uv (recommended)
 
 ```bash
 uv pip install chromium-session
+```
+
+### From Source
+
+```bash
+git clone https://github.com/Asseel-Naji/chromium-session.git
+cd chromium-session
+uv pip install -e .
 ```
 
 ## Requirements
@@ -36,6 +47,18 @@ uv pip install chromium-session
 - Chromium-based browser(s) installed
 
 ## Usage
+
+### Quick Start with Auto-Detection
+
+All commands support auto-detection - just omit the browser parameter:
+
+```bash
+# Automatically detects and uses the most recent session
+chromium-session summary
+chromium-session parse
+chromium-session bookmarks
+chromium-session history --limit 20
+```
 
 ### List Detected Browsers
 
@@ -138,6 +161,74 @@ chromium-session workspaces vivaldi
 │ 🔬    │ Research             │ 2          │
 │ 🏠    │ Personal             │ 3          │
 └───────┴──────────────────────┴────────────┘
+```
+
+### Browse Bookmarks
+
+Display bookmarks with folder structure:
+
+```bash
+# Auto-detect browser
+chromium-session bookmarks
+
+# Specific browser
+chromium-session bookmarks --browser chrome
+
+# Export as JSON
+chromium-session bookmarks --json > bookmarks.json
+```
+
+### Browse History
+
+View browsing history with search and filtering:
+
+```bash
+# Show last 50 entries (default)
+chromium-session history
+
+# Search for specific term
+chromium-session history --search "python"
+
+# Filter by domain
+chromium-session history --domain "github.com"
+
+# Limit results
+chromium-session history --limit 100
+
+# Export as JSON
+chromium-session history --json > history.json
+```
+
+### Organize Tabs
+
+Reorganize tabs by domain or title and write back to session files:
+
+```bash
+# Organize by domain (preview)
+chromium-session organize --by-domain --dry-run
+
+# Organize by domain (apply)
+chromium-session organize --by-domain
+
+# Sort alphabetically by title
+chromium-session organize --by-title
+
+# Organize specific browser
+chromium-session organize --browser vivaldi --by-domain
+```
+
+**Note**: Automatic backup is created before modifying session files.
+
+### CSV Export
+
+Export session data to CSV format:
+
+```bash
+# Export to CSV
+chromium-session parse --csv > sessions.csv
+
+# Include deleted tabs
+chromium-session parse --csv --show-deleted > all_tabs.csv
 ```
 
 ### JSON Output
