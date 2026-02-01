@@ -20,7 +20,7 @@ Parse and analyze session files from Chromium-based browsers (Chrome, Vivaldi, B
 
 ## Installation
 
-### From PyPI (Coming Soon)
+### From PyPI
 
 ```bash
 pip install chromium-session
