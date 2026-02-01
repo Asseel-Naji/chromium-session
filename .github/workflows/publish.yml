@@ -43,9 +43,6 @@ jobs:
     name: Publish to PyPI
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/chromium-session
 
     steps:
       - name: Download artifacts
