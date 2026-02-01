@@ -1,12 +1,46 @@
 [project]
 name = "chromium-session"
-version = "0.1.0"
-description = "Parse Chromium-based browser session files (Chrome, Vivaldi, Brave, Edge) with workspace support"
+version = "0.2.0"
+description = "Parse and analyze Chromium-based browser session files (Chrome, Vivaldi, Brave, Edge) with workspace support, history, bookmarks, and tab organization"
+readme = "README.md"
 requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+    { name = "Asseel Naji", email = "asseel.naji@gmail.com" }
+]
+keywords = [
+    "chromium",
+    "chrome",
+    "vivaldi",
+    "brave",
+    "edge",
+    "browser",
+    "session",
+    "tabs",
+    "workspace",
+    "bookmarks",
+    "history",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Utilities",
+    "Topic :: Internet :: WWW/HTTP :: Browsers",
+]
 dependencies = [
     "rich>=14.3.1",
     "typer>=0.21.1",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Asseel-Naji/chromium-session"
+Repository = "https://github.com/Asseel-Naji/chromium-session"
+Issues = "https://github.com/Asseel-Naji/chromium-session/issues"
 
 [project.scripts]
 chromium-session = "chromium_session.cli:app"

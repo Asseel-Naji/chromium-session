@@ -9,6 +9,7 @@ from pathlib import Path
 @dataclass
 class BrowserProfile:
     """A browser profile with its paths."""
+
     name: str
     path: Path
     sessions_path: Path
@@ -26,6 +27,7 @@ class BrowserProfile:
 @dataclass
 class Browser:
     """A detected Chromium-based browser."""
+
     id: str  # Short identifier for CLI
     name: str  # Display name
     path: Path  # Base config path
@@ -41,31 +43,41 @@ BROWSER_DEFINITIONS = [
     # Google Chrome variants
     ("chrome", "Google Chrome", ["google-chrome", "Google/Chrome"]),
     ("chrome-beta", "Google Chrome Beta", ["google-chrome-beta", "Google/Chrome Beta"]),
-    ("chrome-dev", "Google Chrome Dev", ["google-chrome-unstable", "Google/Chrome Dev"]),
-    ("chrome-canary", "Google Chrome Canary", ["google-chrome-canary", "Google/Chrome Canary"]),
-    
+    (
+        "chrome-dev",
+        "Google Chrome Dev",
+        ["google-chrome-unstable", "Google/Chrome Dev"],
+    ),
+    (
+        "chrome-canary",
+        "Google Chrome Canary",
+        ["google-chrome-canary", "Google/Chrome Canary"],
+    ),
     # Chromium
     ("chromium", "Chromium", ["chromium", "Chromium"]),
-    
     # Vivaldi
     ("vivaldi", "Vivaldi", ["vivaldi", "Vivaldi"]),
     ("vivaldi-snapshot", "Vivaldi Snapshot", ["vivaldi-snapshot", "Vivaldi Snapshot"]),
-    
     # Brave
     ("brave", "Brave", ["BraveSoftware/Brave-Browser", "brave"]),
     ("brave-beta", "Brave Beta", ["BraveSoftware/Brave-Browser-Beta"]),
     ("brave-nightly", "Brave Nightly", ["BraveSoftware/Brave-Browser-Nightly"]),
-    
     # Microsoft Edge
     ("edge", "Microsoft Edge", ["microsoft-edge", "Microsoft/Edge"]),
-    ("edge-beta", "Microsoft Edge Beta", ["microsoft-edge-beta", "Microsoft/Edge Beta"]),
+    (
+        "edge-beta",
+        "Microsoft Edge Beta",
+        ["microsoft-edge-beta", "Microsoft/Edge Beta"],
+    ),
     ("edge-dev", "Microsoft Edge Dev", ["microsoft-edge-dev", "Microsoft/Edge Dev"]),
-    
     # Opera
     ("opera", "Opera", ["opera", "Opera Software/Opera Stable"]),
     ("opera-beta", "Opera Beta", ["opera-beta", "Opera Software/Opera Next"]),
-    ("opera-dev", "Opera Developer", ["opera-developer", "Opera Software/Opera Developer"]),
-    
+    (
+        "opera-dev",
+        "Opera Developer",
+        ["opera-developer", "Opera Software/Opera Developer"],
+    ),
     # Other Chromium-based
     ("arc", "Arc", ["Arc", "arc"]),
     ("thorium", "Thorium", ["thorium", "Thorium"]),
@@ -81,30 +93,34 @@ def get_config_base() -> Path:
 def detect_browser_profiles(browser_path: Path) -> list[BrowserProfile]:
     """Detect all profiles in a browser directory."""
     profiles = []
-    
+
     if not browser_path.exists():
         return profiles
-    
+
     # Check for Default profile
     default_path = browser_path / "Default"
     if default_path.exists():
-        profiles.append(BrowserProfile(
-            name="Default",
-            path=default_path,
-            sessions_path=default_path / "Sessions",
-            preferences_path=default_path / "Preferences",
-        ))
-    
+        profiles.append(
+            BrowserProfile(
+                name="Default",
+                path=default_path,
+                sessions_path=default_path / "Sessions",
+                preferences_path=default_path / "Preferences",
+            )
+        )
+
     # Check for numbered profiles (Profile 1, Profile 2, etc.)
     for item in browser_path.iterdir():
         if item.is_dir() and item.name.startswith("Profile "):
-            profiles.append(BrowserProfile(
-                name=item.name,
-                path=item,
-                sessions_path=item / "Sessions",
-                preferences_path=item / "Preferences",
-            ))
-    
+            profiles.append(
+                BrowserProfile(
+                    name=item.name,
+                    path=item,
+                    sessions_path=item / "Sessions",
+                    preferences_path=item / "Preferences",
+                )
+            )
+
     # Sort profiles: Default first, then by number
     def profile_sort_key(p: BrowserProfile) -> tuple[int, str]:
         if p.name == "Default":
@@ -114,7 +130,7 @@ def detect_browser_profiles(browser_path: Path) -> list[BrowserProfile]:
             return (1, f"{num:010d}")
         except ValueError:
             return (2, p.name)
-    
+
     profiles.sort(key=profile_sort_key)
     return profiles
 
@@ -123,27 +139,31 @@ def detect_browsers(config_base: Path | None = None) -> list[Browser]:
     """Detect all installed Chromium-based browsers."""
     if config_base is None:
         config_base = get_config_base()
-    
+
     browsers = []
-    
+
     for browser_id, name, patterns in BROWSER_DEFINITIONS:
         for pattern in patterns:
             browser_path = config_base / pattern
             if browser_path.exists():
                 profiles = detect_browser_profiles(browser_path)
                 if profiles:  # Only add if has profiles
-                    browsers.append(Browser(
-                        id=browser_id,
-                        name=name,
-                        path=browser_path,
-                        profiles=profiles,
-                    ))
+                    browsers.append(
+                        Browser(
+                            id=browser_id,
+                            name=name,
+                            path=browser_path,
+                            profiles=profiles,
+                        )
+                    )
                 break  # Found this browser, move to next
-    
+
     return browsers
 
 
-def get_browser_by_id(browser_id: str, config_base: Path | None = None) -> Browser | None:
+def get_browser_by_id(
+    browser_id: str, config_base: Path | None = None
+) -> Browser | None:
     """Get a specific browser by its ID."""
     browsers = detect_browsers(config_base)
     for browser in browsers:
@@ -163,3 +183,48 @@ def get_profile_choices(browser_id: str) -> list[str]:
     if browser:
         return [p.name for p in browser.profiles]
     return []
+
+
+def find_latest_session(
+    config_base: Path | None = None,
+) -> tuple[Browser, BrowserProfile, Path] | None:
+    """
+    Find the most recently modified session file across all browsers and profiles.
+
+    Returns:
+        Tuple of (browser, profile, session_file) or None if no sessions found.
+    """
+    browsers = detect_browsers(config_base)
+    latest_session: tuple[Browser, BrowserProfile, Path, float] | None = None
+
+    for browser in browsers:
+        for profile in browser.profiles:
+            if not profile.has_sessions:
+                continue
+
+            sessions_dir = profile.sessions_path
+
+            # Look for session files with common patterns
+            for pattern in [
+                "Session_*",
+                "Tabs_*",
+                "Current Session",
+                "Current Tabs",
+            ]:
+                for session_file in sessions_dir.glob(pattern):
+                    if not session_file.is_file():
+                        continue
+
+                    try:
+                        mtime = session_file.stat().st_mtime
+
+                        if latest_session is None or mtime > latest_session[3]:
+                            latest_session = (browser, profile, session_file, mtime)
+                    except OSError:
+                        # Skip files we can't stat
+                        continue
+
+    if latest_session is None:
+        return None
+
+    return (latest_session[0], latest_session[1], latest_session[2])
